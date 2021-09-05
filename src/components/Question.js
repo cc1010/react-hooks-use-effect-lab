@@ -1,32 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function Question({ question, onAnswered }) {
-  const [timeRemaining, setTimeRemaining] = useState(10);
+	const [timeRemaining, setTimeRemaining] = useState(10);
+	const [count, setCount] = useState(0);
 
-  // add useEffect code
+	// add useEffect code
 
-  function handleAnswer(isCorrect) {
-    setTimeRemaining(10);
-    onAnswered(isCorrect);
-  }
+	useEffect(() => {
+		const timerID = setTimeout(
+			() => setTimeRemaining(timeRemaining - 1),
+			1000
+		);
 
-  const { id, prompt, answers, correctIndex } = question;
+		if (timeRemaining === 1) {
+			setTimeRemaining(10);
+			onAnswered(false);
+		}
 
-  return (
-    <>
-      <h1>Question {id}</h1>
-      <h3>{prompt}</h3>
-      {answers.map((answer, index) => {
-        const isCorrect = index === correctIndex;
-        return (
-          <button key={answer} onClick={() => handleAnswer(isCorrect)}>
-            {answer}
-          </button>
-        );
-      })}
-      <h5>{timeRemaining} seconds remaining</h5>
-    </>
-  );
+		return function cleanup() {
+			clearTimeout(timerID);
+		};
+	}, [timeRemaining]);
+
+	console.log(timeRemaining);
+
+	function handleAnswer(isCorrect) {
+		setTimeRemaining(10);
+		onAnswered(isCorrect);
+	}
+
+	const { id, prompt, answers, correctIndex } = question;
+
+	return (
+		<>
+			<h1>Question {id}</h1>
+			<h3>{prompt}</h3>
+			{answers.map((answer, index) => {
+				const isCorrect = index === correctIndex;
+				return (
+					<button
+						key={answer}
+						onClick={() => handleAnswer(isCorrect)}
+					>
+						{answer}
+					</button>
+				);
+			})}
+			<h5>{timeRemaining} seconds remaining</h5>
+		</>
+	);
 }
 
 export default Question;
